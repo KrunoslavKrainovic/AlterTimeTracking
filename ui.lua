@@ -40,7 +40,23 @@ function UI:GetSettings()
     AlterTimeTrackingDB.colorG = AlterTimeTrackingDB.colorG or 1
     AlterTimeTrackingDB.colorB = AlterTimeTrackingDB.colorB or 0
     AlterTimeTrackingDB.fontSize = AlterTimeTrackingDB.fontSize or 16
+    AlterTimeTrackingDB.shortNumbers = AlterTimeTrackingDB.shortNumbers or false
     return AlterTimeTrackingDB
+end
+
+-- Format number (300000 -> 300k)
+function UI:FormatNumber(num)
+    local db = self:GetSettings()
+    if not db.shortNumbers then
+        return tostring(num)
+    end
+    if num >= 1000000 then
+        return string.format("%.1fm", num / 1000000)
+    elseif num >= 1000 then
+        return string.format("%.0fk", num / 1000)
+    else
+        return tostring(num)
+    end
 end
 
 -- Apply font settings
@@ -55,13 +71,21 @@ function UI:UpdateDisplay(savedHealth)
     local db = self:GetSettings()
     
     if self.testMode then
-        local text = db.textFormat:gsub("%%saved", "250000"):gsub("%%current", "200000")
+        local savedDisplay = db.shortNumbers and "250k" or "250000"
+        local currentDisplay = db.shortNumbers and "200k" or "200000"
+        local text = db.textFormat:gsub("%%saved", savedDisplay):gsub("%%current", currentDisplay)
         self.healthText:SetText(text)
         self.healthText:SetTextColor(db.colorR, db.colorG, db.colorB)
     elseif savedHealth then
-        -- Use SetFormattedText to handle secret numbers with %s
-        local format = db.textFormat:gsub("%%saved", "%%s"):gsub("%%current", "%%s")
-        self.healthText:SetFormattedText(format, savedHealth, UnitHealth("player"))
+        if db.shortNumbers then
+            -- Use AbbreviateNumbers for short format (works with secret numbers)
+            local format = db.textFormat:gsub("%%saved", "%%s"):gsub("%%current", "%%s")
+            self.healthText:SetFormattedText(format, AbbreviateNumbers(savedHealth), AbbreviateNumbers(UnitHealth("player")))
+        else
+            -- Use SetFormattedText to handle secret numbers with %s
+            local format = db.textFormat:gsub("%%saved", "%%s"):gsub("%%current", "%%s")
+            self.healthText:SetFormattedText(format, savedHealth, UnitHealth("player"))
+        end
         self.healthText:SetTextColor(db.colorR, db.colorG, db.colorB)
     else
         self.healthText:SetText("")
@@ -185,9 +209,22 @@ function UI:CreateOptionsPanel()
         UI:ApplyFont()
     end)
 
+    -- Short Numbers Checkbox
+    local shortNumCheck = CreateFrame("CheckButton", nil, panel, "UICheckButtonTemplate")
+    shortNumCheck:SetPoint("TOPLEFT", 16, -210)
+    shortNumCheck:SetChecked(db.shortNumbers)
+    shortNumCheck:SetScript("OnClick", function(self)
+        db.shortNumbers = self:GetChecked()
+        addon.Core:UpdateDisplay()
+    end)
+    
+    local shortNumLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    shortNumLabel:SetPoint("LEFT", shortNumCheck, "RIGHT", 5, 0)
+    shortNumLabel:SetText("Short numbers (300k instead of 300000)")
+
     -- Reset to Defaults Button
     local resetBtn = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
-    resetBtn:SetPoint("TOPLEFT", 16, -220)
+    resetBtn:SetPoint("TOPLEFT", 16, -245)
     resetBtn:SetSize(150, 25)
     resetBtn:SetText("Reset to Defaults")
     resetBtn:SetScript("OnClick", function()
@@ -214,6 +251,10 @@ function UI:CreateOptionsPanel()
         fontSlider:SetValue(16)
         UI:ApplyFont()
         
+        -- Reset short numbers
+        db.shortNumbers = false
+        shortNumCheck:SetChecked(false)
+        
         addon.Core:UpdateDisplay()
         print("Settings reset to defaults!")
     end)
@@ -224,6 +265,7 @@ function UI:CreateOptionsPanel()
         formatBox:SetText(settings.textFormat)
         swatchTexture:SetColorTexture(settings.colorR, settings.colorG, settings.colorB)
         fontSlider:SetValue(settings.fontSize)
+        shortNumCheck:SetChecked(settings.shortNumbers)
     end)
 
     colorSwatch:SetScript("OnClick", function()
