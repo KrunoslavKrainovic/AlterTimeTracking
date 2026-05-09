@@ -328,9 +328,15 @@ function UI:CreateOptionsPanel()
 
     -- Author at bottom
     local author = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    author:SetPoint("BOTTOMLEFT", 16, 70)
+    author:SetPoint("BOTTOMLEFT", 16, 95)
     author:SetText("by Tramstarzz-Stormscale, Tramstarz-Stormscale, Tramstarzz-Twisting Nether")
     author:SetTextColor(0.8, 0.8, 0.8)
+    
+    -- Donation message
+    local donation = panel:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+    donation:SetPoint("BOTTOMLEFT", 16, 75)
+    donation:SetText("Donations not needed, but gold tips to my characters are always appreciated! <3")
+    donation:SetTextColor(1, 0.84, 0)
     
     -- GitHub label
     local githubLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
