@@ -1,0 +1,9 @@
+## Interface: 120005
+## Title: Alter Time Tracking
+## Notes: Tracks Alter Time health for Mages
+## Author: Player
+## Version: 1.0
+## SavedVariables: AlterTimeTrackingDB
+
+ui.lua
+core.lua
