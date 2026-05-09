@@ -47,7 +47,7 @@ Access via `/att` or through Interface → AddOns → Alter Time Tracking
 - **Color:** Yellow
 - **Font Size:** 16
 - **Short Numbers:** Off
-- **Use Percent:** Off
+- **Use Percent:** On
 - **Position:** Center of screen
 
 ## Installation

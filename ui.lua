@@ -41,7 +41,7 @@ function UI:GetSettings()
     AlterTimeTrackingDB.colorB = AlterTimeTrackingDB.colorB or 0
     AlterTimeTrackingDB.fontSize = AlterTimeTrackingDB.fontSize or 16
     AlterTimeTrackingDB.shortNumbers = AlterTimeTrackingDB.shortNumbers or false
-    AlterTimeTrackingDB.usePercent = AlterTimeTrackingDB.usePercent or false
+    if AlterTimeTrackingDB.usePercent == nil then AlterTimeTrackingDB.usePercent = true end
     return AlterTimeTrackingDB
 end
 
@@ -287,8 +287,8 @@ function UI:CreateOptionsPanel()
         -- Reset short numbers and percent
         db.shortNumbers = false
         shortNumCheck:SetChecked(false)
-        db.usePercent = false
-        percentCheck:SetChecked(false)
+        db.usePercent = true
+        percentCheck:SetChecked(true)
         
         addon.Core:UpdateDisplay()
     end)
