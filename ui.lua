@@ -98,7 +98,8 @@ function UI:CreateOptionsPanel()
 
     local title = panel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
     title:SetPoint("TOPLEFT", 16, -16)
-    title:SetText("Alter Time Tracker")
+    title:SetText("Alter Time Tracker v1.0.0")
+    
 
     -- Test / Move button
     local testBtn = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
@@ -247,6 +248,18 @@ function UI:CreateOptionsPanel()
         end
         ColorPickerFrame:SetupColorPickerAndShow(info)
     end)
+
+    -- Author at bottom
+    local author = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    author:SetPoint("BOTTOMLEFT", 16, 40)
+    author:SetText("by Tramstarzz-Stormscale, Tramstarz-Stormscale, Tramstarzz-Twisting Nether")
+    author:SetTextColor(0.8, 0.8, 0.8)
+    
+    -- GitHub link at bottom
+    local github = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    github:SetPoint("BOTTOMLEFT", 16, 20)
+    github:SetText("GitHub: github.com/KrunoslavKrainovic/AlterTimeTracking")
+    github:SetTextColor(0.4, 0.7, 1)
 
     local category = Settings.RegisterCanvasLayoutCategory(panel, panel.name)
     Settings.RegisterAddOnCategory(category)
