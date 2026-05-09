@@ -32,6 +32,31 @@ UI.healthText = UI.healthFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalL
 UI.healthText:SetPoint("TOP", UI.healthFrame, "TOP", 0, 0)
 UI.healthText:SetTextColor(1, 1, 1)
 
+-- Create the timer frame (separate and movable)
+UI.timerFrame = CreateFrame("Frame", "AlterTimeTimerFrame", UIParent)
+UI.timerFrame:SetSize(150, 30)
+UI.timerFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 150)
+UI.timerFrame:SetMovable(true)
+UI.timerFrame:EnableMouse(false)
+UI.timerFrame:RegisterForDrag("LeftButton")
+UI.timerFrame:SetScript("OnDragStart", UI.timerFrame.StartMoving)
+UI.timerFrame:SetScript("OnDragStop", function(self)
+    self:StopMovingOrSizing()
+    -- Save timer position
+    local point, _, relPoint, x, y = self:GetPoint()
+    AlterTimeTrackingDB = AlterTimeTrackingDB or {}
+    AlterTimeTrackingDB.timerPoint = point
+    AlterTimeTrackingDB.timerRelPoint = relPoint
+    AlterTimeTrackingDB.timerX = x
+    AlterTimeTrackingDB.timerY = y
+end)
+
+-- Create the timer text
+UI.timerText = UI.timerFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+UI.timerText:SetPoint("CENTER", UI.timerFrame, "CENTER", 0, 0)
+UI.timerText:SetTextColor(1, 1, 1)
+UI.timerText:SetText("")
+
 -- Get saved settings or defaults
 function UI:GetSettings()
     AlterTimeTrackingDB = AlterTimeTrackingDB or {}
@@ -42,6 +67,7 @@ function UI:GetSettings()
     AlterTimeTrackingDB.fontSize = AlterTimeTrackingDB.fontSize or 16
     AlterTimeTrackingDB.shortNumbers = AlterTimeTrackingDB.shortNumbers or false
     if AlterTimeTrackingDB.usePercent == nil then AlterTimeTrackingDB.usePercent = true end
+    if AlterTimeTrackingDB.showTimer == nil then AlterTimeTrackingDB.showTimer = true end
     return AlterTimeTrackingDB
 end
 
@@ -65,11 +91,27 @@ function UI:ApplyFont()
     local db = self:GetSettings()
     local fontPath = self.healthText:GetFont()
     self.healthText:SetFont(fontPath, db.fontSize, "OUTLINE")
+    self.timerText:SetFont(fontPath, db.fontSize, "OUTLINE")
 end
 
 -- Function to update display
-function UI:UpdateDisplay(savedHealth, savedHealthPercent)
+function UI:UpdateDisplay(savedHealth, savedHealthPercent, remainingTime)
     local db = self:GetSettings()
+    
+    -- Update timer text separately
+    if db.showTimer then
+        if self.testMode then
+            self.timerText:SetText("5.0s")
+            self.timerText:SetTextColor(db.colorR, db.colorG, db.colorB)
+        elseif remainingTime then
+            self.timerText:SetText(string.format("%.1f", remainingTime) .. "s")
+            self.timerText:SetTextColor(db.colorR, db.colorG, db.colorB)
+        else
+            self.timerText:SetText("")
+        end
+    else
+        self.timerText:SetText("")
+    end
     
     if self.testMode then
         local savedDisplay, currentDisplay
@@ -114,6 +156,10 @@ function UI:LoadPosition()
         self.healthFrame:ClearAllPoints()
         self.healthFrame:SetPoint(AlterTimeTrackingDB.point, UIParent, AlterTimeTrackingDB.relPoint, AlterTimeTrackingDB.x, AlterTimeTrackingDB.y)
     end
+    if AlterTimeTrackingDB and AlterTimeTrackingDB.timerPoint then
+        self.timerFrame:ClearAllPoints()
+        self.timerFrame:SetPoint(AlterTimeTrackingDB.timerPoint, UIParent, AlterTimeTrackingDB.timerRelPoint, AlterTimeTrackingDB.timerX, AlterTimeTrackingDB.timerY)
+    end
     -- Apply saved font size
     self:ApplyFont()
 end
@@ -122,6 +168,7 @@ end
 function UI:ToggleTestMode()
     self.testMode = not self.testMode
     self.healthFrame:EnableMouse(self.testMode)
+    self.timerFrame:EnableMouse(self.testMode)
 end
 
 -- Create Options Panel
@@ -255,9 +302,23 @@ function UI:CreateOptionsPanel()
         addon.Core:UpdateDisplay()
     end)
 
+    -- Show Timer checkbox
+    local timerCheck = CreateFrame("CheckButton", nil, panel, "UICheckButtonTemplate")
+    timerCheck:SetPoint("TOPLEFT", 16, -260)
+    timerCheck:SetChecked(db.showTimer)
+    
+    local timerLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    timerLabel:SetPoint("LEFT", timerCheck, "RIGHT", 5, 0)
+    timerLabel:SetText("Show timer (separate movable display)")
+    
+    timerCheck:SetScript("OnClick", function(self)
+        db.showTimer = self:GetChecked()
+        addon.Core:UpdateDisplay()
+    end)
+
     -- Reset to Defaults Button
     local resetBtn = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
-    resetBtn:SetPoint("TOPLEFT", 16, -270)
+    resetBtn:SetPoint("TOPLEFT", 16, -295)
     resetBtn:SetSize(150, 25)
     resetBtn:SetText("Reset to Defaults")
     resetBtn:SetScript("OnClick", function()
@@ -268,6 +329,14 @@ function UI:CreateOptionsPanel()
         db.y = nil
         UI.healthFrame:ClearAllPoints()
         UI.healthFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 200)
+        
+        -- Reset timer position
+        db.timerPoint = nil
+        db.timerRelPoint = nil
+        db.timerX = nil
+        db.timerY = nil
+        UI.timerFrame:ClearAllPoints()
+        UI.timerFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 150)
         
         -- Reset text format
         db.textFormat = "Alter HP: %saved | Current HP: %current"
@@ -290,6 +359,10 @@ function UI:CreateOptionsPanel()
         db.usePercent = true
         percentCheck:SetChecked(true)
         
+        -- Reset show timer
+        db.showTimer = true
+        timerCheck:SetChecked(true)
+        
         addon.Core:UpdateDisplay()
     end)
     
@@ -301,6 +374,7 @@ function UI:CreateOptionsPanel()
         fontSlider:SetValue(settings.fontSize)
         shortNumCheck:SetChecked(settings.shortNumbers)
         percentCheck:SetChecked(settings.usePercent)
+        timerCheck:SetChecked(settings.showTimer)
     end)
 
     colorSwatch:SetScript("OnClick", function()

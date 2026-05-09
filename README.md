@@ -13,6 +13,7 @@ When you cast **Alter Time**, the addon saves your current health. It then displ
 
 - **Health Tracking** - Automatically saves your health when Alter Time Recall is cast
 - **Live Display** - Shows saved health vs current health in real-time
+- **Timer Display** - Separate movable countdown timer showing time remaining until Alter Time expires
 - **Movable Frame** - Drag the display anywhere on your screen (position is saved)
 - **Customizable Text** - Change the display format using `%saved` and `%current` placeholders
 - **Custom Color** - Pick any color for the text using a color picker
@@ -33,6 +34,7 @@ Access through Interface → AddOns → Alter Time Tracking
 - **Font Size** - Adjust the text size with the slider
 - **Short Numbers** - Toggle to show 300k instead of 300000
 - **Use Percent** - Toggle to show 83% instead of 250000
+- **Show Timer** - Toggle to show separate movable countdown timer
 - **Reset to Defaults** - Reset all settings to defaults
 
 ## Default Settings
@@ -42,6 +44,7 @@ Access through Interface → AddOns → Alter Time Tracking
 - **Font Size:** 16
 - **Short Numbers:** Off
 - **Use Percent:** On
+- **Show Timer:** On
 - **Position:** Center of screen
 
 ## Installation

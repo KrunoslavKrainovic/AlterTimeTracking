@@ -8,6 +8,8 @@ local Core = addon.Core
 -- Tracking
 Core.savedHealth = nil
 Core.savedHealthPercent = nil
+Core.alterTimeStartTime = nil
+Core.alterTimeDuration = 10
 
 -- Alter Time spell IDs
 local ALTER_TIME_SPELL_ID = 342247
@@ -22,7 +24,19 @@ end
 
 -- Function to update display
 function Core:UpdateDisplay()
-    addon.UI:UpdateDisplay(self.savedHealth, self.savedHealthPercent)
+    local remainingTime = nil
+    if self.alterTimeStartTime then
+        local elapsed = GetTime() - self.alterTimeStartTime
+        remainingTime = self.alterTimeDuration - elapsed
+        if remainingTime <= 0 then
+            self.alterTimeStartTime = nil
+            remainingTime = nil
+            -- Clear saved health when timer expires
+            self.savedHealth = nil
+            self.savedHealthPercent = nil
+        end
+    end
+    addon.UI:UpdateDisplay(self.savedHealth, self.savedHealthPercent, remainingTime)
 end
 
 -- Initialize core functionality
@@ -47,14 +61,23 @@ function Core:Init()
                     if Core.savedHealth == nil then
                         Core.savedHealth = UnitHealth("player")
                         Core.savedHealthPercent = UnitHealthPercent("player", true, CurveConstants.ScaleTo100) or 100
+                        Core.alterTimeStartTime = GetTime()
                     end
                 elseif spellID == ALTER_TIME_SPELL_ID then
                     Core.savedHealth = nil
                     Core.savedHealthPercent = nil
+                    Core.alterTimeStartTime = nil
                 end
             end
         end
         Core:UpdateDisplay()
+    end)
+    
+    -- OnUpdate handler for timer
+    frame:SetScript("OnUpdate", function(self, elapsed)
+        if Core.alterTimeStartTime then
+            Core:UpdateDisplay()
+        end
     end)
 end
 
