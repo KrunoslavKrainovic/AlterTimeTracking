@@ -7,6 +7,7 @@ local Core = addon.Core
 
 -- Tracking
 Core.savedHealth = nil
+Core.savedHealthPercent = nil
 
 -- Alter Time spell IDs
 local ALTER_TIME_SPELL_ID = 342247
@@ -22,7 +23,7 @@ end
 
 -- Function to update display
 function Core:UpdateDisplay()
-    addon.UI:UpdateDisplay(self.savedHealth)
+    addon.UI:UpdateDisplay(self.savedHealth, self.savedHealthPercent)
 end
 
 -- Initialize core functionality
@@ -50,10 +51,12 @@ function Core:Init()
                 if spellID == ALTER_TIME_RECALL_ID then
                     if Core.savedHealth == nil then
                         Core.savedHealth = UnitHealth("player")
+                        Core.savedHealthPercent = UnitHealthPercent("player", true, CurveConstants.ScaleTo100) or 100
                         print("Recall cast! Health saved.")
                     end
                 elseif spellID == ALTER_TIME_SPELL_ID then
                     Core.savedHealth = nil
+                    Core.savedHealthPercent = nil
                     if debugMode then
                         print("Alter Time pressed - cleared.")
                     end

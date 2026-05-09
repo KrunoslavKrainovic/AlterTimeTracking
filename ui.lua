@@ -41,6 +41,7 @@ function UI:GetSettings()
     AlterTimeTrackingDB.colorB = AlterTimeTrackingDB.colorB or 0
     AlterTimeTrackingDB.fontSize = AlterTimeTrackingDB.fontSize or 16
     AlterTimeTrackingDB.shortNumbers = AlterTimeTrackingDB.shortNumbers or false
+    AlterTimeTrackingDB.usePercent = AlterTimeTrackingDB.usePercent or false
     return AlterTimeTrackingDB
 end
 
@@ -67,17 +68,32 @@ function UI:ApplyFont()
 end
 
 -- Function to update display
-function UI:UpdateDisplay(savedHealth)
+function UI:UpdateDisplay(savedHealth, savedHealthPercent)
     local db = self:GetSettings()
     
     if self.testMode then
-        local savedDisplay = db.shortNumbers and "250k" or "250000"
-        local currentDisplay = db.shortNumbers and "200k" or "200000"
+        local savedDisplay, currentDisplay
+        if db.usePercent then
+            savedDisplay = "83%%"
+            currentDisplay = "67%%"
+        elseif db.shortNumbers then
+            savedDisplay = "250k"
+            currentDisplay = "200k"
+        else
+            savedDisplay = "250000"
+            currentDisplay = "200000"
+        end
+        -- gsub replacement needs %% to produce a literal %
         local text = db.textFormat:gsub("%%saved", savedDisplay):gsub("%%current", currentDisplay)
         self.healthText:SetText(text)
         self.healthText:SetTextColor(db.colorR, db.colorG, db.colorB)
     elseif savedHealth then
-        if db.shortNumbers then
+        if db.usePercent and savedHealthPercent then
+            -- Use percent display
+            local currentPercent = UnitHealthPercent("player", true, CurveConstants.ScaleTo100) or 0
+            local format = db.textFormat:gsub("%%saved", "%%s%%%%"):gsub("%%current", "%%s%%%%")
+            self.healthText:SetFormattedText(format, string.format("%.0f", savedHealthPercent), string.format("%.0f", currentPercent))
+        elseif db.shortNumbers then
             -- Use AbbreviateNumbers for short format (works with secret numbers)
             local format = db.textFormat:gsub("%%saved", "%%s"):gsub("%%current", "%%s")
             self.healthText:SetFormattedText(format, AbbreviateNumbers(savedHealth), AbbreviateNumbers(UnitHealth("player")))
@@ -209,22 +225,45 @@ function UI:CreateOptionsPanel()
         UI:ApplyFont()
     end)
 
-    -- Short Numbers Checkbox
+    -- Create both checkboxes first
     local shortNumCheck = CreateFrame("CheckButton", nil, panel, "UICheckButtonTemplate")
     shortNumCheck:SetPoint("TOPLEFT", 16, -210)
     shortNumCheck:SetChecked(db.shortNumbers)
-    shortNumCheck:SetScript("OnClick", function(self)
-        db.shortNumbers = self:GetChecked()
-        addon.Core:UpdateDisplay()
-    end)
     
     local shortNumLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     shortNumLabel:SetPoint("LEFT", shortNumCheck, "RIGHT", 5, 0)
     shortNumLabel:SetText("Short numbers (300k instead of 300000)")
+    
+    local percentCheck = CreateFrame("CheckButton", nil, panel, "UICheckButtonTemplate")
+    percentCheck:SetPoint("TOPLEFT", 16, -235)
+    percentCheck:SetChecked(db.usePercent)
+    
+    local percentLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    percentLabel:SetPoint("LEFT", percentCheck, "RIGHT", 5, 0)
+    percentLabel:SetText("Use percent (83% instead of 250000)")
+    
+    -- Set click handlers after both exist
+    shortNumCheck:SetScript("OnClick", function(self)
+        db.shortNumbers = self:GetChecked()
+        if self:GetChecked() then
+            db.usePercent = false
+            percentCheck:SetChecked(false)
+        end
+        addon.Core:UpdateDisplay()
+    end)
+    
+    percentCheck:SetScript("OnClick", function(self)
+        db.usePercent = self:GetChecked()
+        if self:GetChecked() then
+            db.shortNumbers = false
+            shortNumCheck:SetChecked(false)
+        end
+        addon.Core:UpdateDisplay()
+    end)
 
     -- Reset to Defaults Button
     local resetBtn = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
-    resetBtn:SetPoint("TOPLEFT", 16, -245)
+    resetBtn:SetPoint("TOPLEFT", 16, -270)
     resetBtn:SetSize(150, 25)
     resetBtn:SetText("Reset to Defaults")
     resetBtn:SetScript("OnClick", function()
@@ -251,9 +290,11 @@ function UI:CreateOptionsPanel()
         fontSlider:SetValue(16)
         UI:ApplyFont()
         
-        -- Reset short numbers
+        -- Reset short numbers and percent
         db.shortNumbers = false
         shortNumCheck:SetChecked(false)
+        db.usePercent = false
+        percentCheck:SetChecked(false)
         
         addon.Core:UpdateDisplay()
         print("Settings reset to defaults!")
@@ -266,6 +307,7 @@ function UI:CreateOptionsPanel()
         swatchTexture:SetColorTexture(settings.colorR, settings.colorG, settings.colorB)
         fontSlider:SetValue(settings.fontSize)
         shortNumCheck:SetChecked(settings.shortNumbers)
+        percentCheck:SetChecked(settings.usePercent)
     end)
 
     colorSwatch:SetScript("OnClick", function()

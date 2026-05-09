@@ -18,6 +18,7 @@ When you cast **Alter Time**, the addon saves your current health. It then displ
 - **Custom Color** - Pick any color for the text using a color picker
 - **Adjustable Font Size** - Slider to change text size (10-32)
 - **Short Numbers** - Option to display health as 300k instead of 300000
+- **Percent Display** - Option to show health as percentage (83% instead of 250000)
 - **Test Mode** - Preview the display and move it without needing to cast spells
 - **Reset to Defaults** - One-click reset for all settings
 
@@ -37,7 +38,8 @@ Access via `/att` or through Interface → AddOns → Alter Time Tracking
 - **Text Color** - Click the color swatch to open the color picker
 - **Font Size** - Adjust the text size with the slider
 - **Short Numbers** - Toggle to show 300k instead of 300000
-- **Reset to Defaults** - Reset position, text, color, font size, and short numbers to defaults
+- **Use Percent** - Toggle to show 83% instead of 250000
+- **Reset to Defaults** - Reset all settings to defaults
 
 ## Default Settings
 
@@ -45,6 +47,7 @@ Access via `/att` or through Interface → AddOns → Alter Time Tracking
 - **Color:** Yellow
 - **Font Size:** 16
 - **Short Numbers:** Off
+- **Use Percent:** Off
 - **Position:** Center of screen
 
 ## Installation
