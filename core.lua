@@ -18,7 +18,6 @@ local debugMode = false
 SLASH_ATDEBUG1 = "/atdebug"
 SlashCmdList["ATDEBUG"] = function()
     debugMode = not debugMode
-    print("Alter Time Debug: " .. (debugMode and "ON - Cast spells to see their IDs" or "OFF"))
 end
 
 -- Function to update display
@@ -44,22 +43,14 @@ function Core:Init()
         elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
             local unit, castGUID, spellID = ...
             if unit == "player" then
-                if debugMode then
-                    local spellName = C_Spell.GetSpellName(spellID)
-                    print("Spell cast: " .. (spellName or "Unknown") .. " (ID: " .. spellID .. ")")
-                end
                 if spellID == ALTER_TIME_RECALL_ID then
                     if Core.savedHealth == nil then
                         Core.savedHealth = UnitHealth("player")
                         Core.savedHealthPercent = UnitHealthPercent("player", true, CurveConstants.ScaleTo100) or 100
-                        print("Recall cast! Health saved.")
                     end
                 elseif spellID == ALTER_TIME_SPELL_ID then
                     Core.savedHealth = nil
                     Core.savedHealthPercent = nil
-                    if debugMode then
-                        print("Alter Time pressed - cleared.")
-                    end
                 end
             end
         end

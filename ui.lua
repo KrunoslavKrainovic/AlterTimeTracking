@@ -122,11 +122,6 @@ end
 function UI:ToggleTestMode()
     self.testMode = not self.testMode
     self.healthFrame:EnableMouse(self.testMode)
-    if self.testMode then
-        print("Test mode ON - Drag the frame to move it. Click again to lock.")
-    else
-        print("Test mode OFF - Position saved.")
-    end
 end
 
 -- Create Options Panel
@@ -180,7 +175,6 @@ function UI:CreateOptionsPanel()
         db.textFormat = formatBox:GetText()
         formatBox:ClearFocus()
         addon.Core:UpdateDisplay()
-        print("Text format saved!")
     end)
 
     -- Color Label
@@ -297,7 +291,6 @@ function UI:CreateOptionsPanel()
         percentCheck:SetChecked(false)
         
         addon.Core:UpdateDisplay()
-        print("Settings reset to defaults!")
     end)
     
     -- Refresh when panel is shown
