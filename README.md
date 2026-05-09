@@ -22,16 +22,10 @@ When you cast **Alter Time**, the addon saves your current health. It then displ
 - **Test Mode** - Preview the display and move it without needing to cast spells
 - **Reset to Defaults** - One-click reset for all settings
 
-## Slash Commands
-
-| Command | Description |
-|---------|-------------|
-| `/att` | Open the options panel |
-| `/atdebug` | Toggle debug mode (shows spell IDs when casting) |
 
 ## Options Panel
 
-Access via `/att` or through Interface → AddOns → Alter Time Tracking
+Access through Interface → AddOns → Alter Time Tracking
 
 - **Test / Move** - Click to show test text and enable dragging to reposition
 - **Text Format** - Customize the display text (use `%saved` and `%current` as placeholders)
@@ -43,7 +37,7 @@ Access via `/att` or through Interface → AddOns → Alter Time Tracking
 
 ## Default Settings
 
-- **Text Format:** `Saved: %saved | Current: %current`
+- **Text Format:** `Alter HP: %saved | Current HP: %current`
 - **Color:** Yellow
 - **Font Size:** 16
 - **Short Numbers:** Off

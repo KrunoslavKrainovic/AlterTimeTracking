@@ -35,7 +35,7 @@ UI.healthText:SetTextColor(1, 1, 1)
 -- Get saved settings or defaults
 function UI:GetSettings()
     AlterTimeTrackingDB = AlterTimeTrackingDB or {}
-    AlterTimeTrackingDB.textFormat = AlterTimeTrackingDB.textFormat or "Saved: %saved | Current: %current"
+    AlterTimeTrackingDB.textFormat = AlterTimeTrackingDB.textFormat or "Alter HP: %saved | Current HP: %current"
     AlterTimeTrackingDB.colorR = AlterTimeTrackingDB.colorR or 1
     AlterTimeTrackingDB.colorG = AlterTimeTrackingDB.colorG or 1
     AlterTimeTrackingDB.colorB = AlterTimeTrackingDB.colorB or 0
@@ -162,7 +162,7 @@ function UI:CreateOptionsPanel()
         addon.Core:UpdateDisplay()
     end)
     formatBox:SetScript("OnEscapePressed", function(self)
-        self:SetText(db.textFormat or "Saved: %saved | Current: %current")
+        self:SetText(db.textFormat or "Alter HP: %saved | Current HP: %current")
         self:ClearFocus()
     end)
     
@@ -270,7 +270,7 @@ function UI:CreateOptionsPanel()
         UI.healthFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 200)
         
         -- Reset text format
-        db.textFormat = "Saved: %saved | Current: %current"
+        db.textFormat = "Alter HP: %saved | Current HP: %current"
         formatBox:SetText(db.textFormat)
         
         -- Reset color
