@@ -1,6 +1,6 @@
 # Alter Time Tracking
 
-**Version:** 1.0.0  
+**Version:** 1.0.1  
 **GitHub:** [https://github.com/KrunoslavKrainovic/AlterTimeTracking](https://github.com/KrunoslavKrainovic/AlterTimeTracking)
 
 A World of Warcraft addon for Mages that tracks your health when using **Alter Time**, helping you decide whether to use the recall or cancel the buff.
